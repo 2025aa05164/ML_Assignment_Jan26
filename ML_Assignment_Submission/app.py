@@ -6,6 +6,7 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score, f1_score, matthews_corrcoef, confusion_matrix
+import requests
 
 st.set_page_config(page_title="Telco Customer Churn Prediction", page_icon="📊", layout="wide")
 
@@ -14,6 +15,21 @@ st.markdown("""
 This app predicts customer churn using various Machine Learning models.
 Upload a CSV file to evaluate the model performance.
 """)
+
+# Function to download sample CSV
+@st.cache_data
+def get_sample_data():
+    url = "https://raw.githubusercontent.com/2025aa05164/ML_Assignment_Jan26/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.content
+    except Exception as e:
+        st.error(f"Error downloading sample file: {e}")
+        return None
+
+sample_data = get_sample_data()
+
 
 # Load models and transformers
 @st.cache_resource
@@ -46,6 +62,15 @@ except FileNotFoundError:
     st.stop()
 
 # Sidebar
+if sample_data:
+    st.sidebar.download_button(
+        label="Download Sample CSV",
+        data=sample_data,
+        file_name="WA_Fn-UseC_-Telco-Customer-Churn.csv",
+        mime="text/csv",
+        help="Download Sample CSV for testing"
+    )
+
 st.sidebar.header("Configuration")
 uploaded_file = st.sidebar.file_uploader("Upload your CSV dataset", type=["csv"])
 
